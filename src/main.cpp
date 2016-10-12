@@ -4,10 +4,9 @@
 
 int main() {
     sysd::buffer b;
-    b.print();
-    b << sysd::bits(2, 3);
-    b << sysd::bits(3, 4);
-    b.print();
+    std::cout << b << std::endl;
+    b << sysd::bits(2, 3) << sysd::bits(3, 4);
+    std::cout << b << std::endl;
     return 0;
 }
 

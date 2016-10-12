@@ -29,6 +29,11 @@ namespace sysd {
             payload.reserve(capacity);
         }
 
+        buffer& operator<<(bool value) {
+            append<std::uint8_t, 1>(value ? 1 : 0);
+            return *this;
+        }
+
         buffer& operator<<(std::uint8_t value) {
             append<std::uint8_t, 1>(value);
             return *this;
@@ -154,20 +159,21 @@ namespace sysd {
             write_pos += count;
         }
 
-        void print() {
-            std::cout << "buffer(payload={";
-            if (payload.size() > 0) {
-                for (auto &i : payload) {
-                    std::cout << static_cast<std::uint32_t>(i) << ", ";
+        friend std::ostream& operator<<(std::ostream &o, const buffer &b) {
+            o << "buffer(payload={";
+            if (b.payload.size() > 0) {
+                for (auto &i : b.payload) {
+                    o << static_cast<std::uint32_t>(i) << ", ";
                 }
-                std::cout << "\b\b";
+                o << "\b\b";
             }
-            std::cout << "}, size=" << payload.size();
-            std::cout << ", write_pos=" << write_pos;
-            std::cout << ", bit_pos=" << bit_pos << ")" << std::endl; 
+            o << "}, size=" << b.payload.size();
+            o << ", write_pos=" << b.write_pos;
+            o << ", bit_pos=" << b.bit_pos << ")";
+            return o;
         }
 
-        const std::vector<std::uint8_t> data() { return payload; }
+        const std::vector<std::uint8_t>& data() { return payload; }
     private:
         std::size_t write_pos, bit_pos;
         std::vector<std::uint8_t> payload;
