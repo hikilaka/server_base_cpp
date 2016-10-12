@@ -4,6 +4,8 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
+#include <string>
 #include <vector>
 
 #include <boost/endian/conversion.hpp>
@@ -59,10 +61,27 @@ namespace sysd {
             return *this;
         }
 
+        buffer& operator<<(const char *str) {
+            if (std::size_t length = std::strlen(str); length > 0) {
+                append(reinterpret_cast<const std::uint8_t *>(str), length);
+            }
+            append<std::uint8_t, 1>(0);
+            return *this;
+        }
+
+        buffer& operator<<(std::string str) {
+            if (str.length() > 0) {
+                append(reinterpret_cast<const std::uint8_t *>(str.c_str()),
+                       str.length());
+            }
+            append<std::uint8_t, 1>(0);
+            return *this;
+        }
+
        template <typename T, std::size_t S>
         void append(T value) {
             value = boost::endian::native_to_big(value);
-            append(reinterpret_cast<std::uint8_t *>(&value), S);
+            append(reinterpret_cast<const std::uint8_t *>(&value), S);
         }
 
 
@@ -74,11 +93,6 @@ namespace sysd {
         void append(const std::uint8_t *src, std::size_t count) {
             if (count == 0) 
                 return;
-
-            std::cout << "APPENDING: count=" << count << ", data={"; 
-            for (std::size_t i = 0; i < count; i++)
-                std::cout << static_cast<std::uint32_t>(src[i]) << ", ";
-            std::cout << "\b\b}" << std::endl;
 
             payload.insert(payload.end(), src, src+count);
             write_pos += count;
