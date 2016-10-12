@@ -11,12 +11,20 @@
 #include <boost/endian/conversion.hpp>
 
 namespace sysd {
+    struct bits {
+        bits(std::uint32_t value, std::size_t nbits)
+            : value(value), nbits(nbits) {  }
+
+        std::uint32_t value;
+        std::size_t nbits;
+    };
+
     class buffer {
     public:
         static const std::size_t DEFAULT_CAPACITY = 0x10;
 
         buffer(const std::size_t capacity = DEFAULT_CAPACITY)
-            : write_pos(0)
+            : write_pos(0), bit_pos(0)
         {
             payload.reserve(capacity);
         }
@@ -78,6 +86,54 @@ namespace sysd {
             return *this;
         }
 
+        buffer& operator<<(sysd::bits bits) {
+            static std::uint32_t bitmasks[] = {
+                0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f,
+                0x7f, 0xff, 0x1ff, 0x3ff, 0x7ff, 0xfff, 0x1fff, 0x3fff, 0x7fff,
+                0xffff, 0x1ffff, 0x3ffff, 0x7ffff, 0xfffff, 0x1fffff, 0x3fffff,
+                0x7fffff, 0xffffff, 0x1ffffff, 0x3ffffff, 0x7ffffff, 0xfffffff,
+                0x1fffffff, 0x3fffffff, 0x7fffffff, 0xffffffff
+            };
+
+            // no need to swap endianness if less than 2 bytes, i believe.
+            // i'll have to do further testing
+            // possible solution to a possible bug:
+            //
+            // if (bits.nbits >= 16)
+            //     bits.value = boost::endian::native_to_big(bits.value);
+            
+            std::size_t byte_pos = bit_pos >> 3;
+            std::size_t bit_offset = 8 - (bit_pos & 7);
+
+            bit_pos += bits.nbits;
+            write_pos = (bit_pos + 7) / 8;
+            payload.reserve(write_pos);
+
+            // Note: we have to populate the internal container
+            // before we can begin writing to it, even though
+            // we have already allocated the space for our writes!
+            while (payload.size() < write_pos) {
+                payload.emplace_back(0);
+            }
+
+            for (; bits.nbits > bit_offset; bit_offset = 8) {
+                payload[byte_pos] &= ~bitmasks[bit_offset];
+                payload[byte_pos++] |= (bits.value >> (bits.nbits - bit_offset))
+                                            & bitmasks[bit_offset];
+                bits.nbits -= bit_offset;
+            }
+            if (bits.nbits == bit_offset) {
+                payload[byte_pos] &= ~bitmasks[bit_offset];
+                payload[byte_pos] |= bits.value & bitmasks[bit_offset];
+            } else {
+                payload[byte_pos] &= ~(bitmasks[bits.nbits]
+                                            << (bit_offset - bits.nbits));
+                payload[byte_pos] |= (bits.value & bitmasks[bits.nbits])
+                                            << (bit_offset - bits.nbits);
+            }
+            return *this;
+        }
+
        template <typename T, std::size_t S>
         void append(T value) {
             value = boost::endian::native_to_big(value);
@@ -107,12 +163,13 @@ namespace sysd {
                 std::cout << "\b\b";
             }
             std::cout << "}, size=" << payload.size();
-            std::cout << ", write_pos=" << write_pos << ")" << std::endl; 
+            std::cout << ", write_pos=" << write_pos;
+            std::cout << ", bit_pos=" << bit_pos << ")" << std::endl; 
         }
 
         const std::vector<std::uint8_t> data() { return payload; }
     private:
-        std::size_t write_pos;
+        std::size_t write_pos, bit_pos;
         std::vector<std::uint8_t> payload;
     };
 }
