@@ -24,7 +24,7 @@ namespace sysd {
         static const std::size_t DEFAULT_CAPACITY = 0x10;
 
         buffer(const std::size_t capacity = DEFAULT_CAPACITY)
-            : write_pos(0), bit_pos(0)
+            : write_pos(0), read_pos(0), bit_pos(0)
         {
             payload.reserve(capacity);
         }
@@ -92,7 +92,7 @@ namespace sysd {
         }
 
         buffer& operator<<(sysd::bits bits) {
-            static std::uint32_t bitmasks[] = {
+            static const std::uint32_t bitmasks[] = {
                 0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f,
                 0x7f, 0xff, 0x1ff, 0x3ff, 0x7ff, 0xfff, 0x1fff, 0x3fff, 0x7fff,
                 0xffff, 0x1ffff, 0x3ffff, 0x7ffff, 0xfffff, 0x1fffff, 0x3fffff,
@@ -139,6 +139,71 @@ namespace sysd {
             return *this;
         }
 
+        buffer& operator>>(bool& value) {
+            value = consume<std::uint8_t, 1>() == 1 ? true : false;
+            return *this;
+        }
+        
+        buffer& operator>>(std::uint8_t& value) {
+            value = consume<std::uint8_t, 1>();
+            return *this;
+        }
+        
+        buffer& operator>>(std::uint16_t& value) {
+            value = consume<std::uint16_t, 2>();
+            return *this;
+        }
+        
+        buffer& operator>>(std::uint32_t& value) {
+            value = consume<std::uint32_t, 4>();
+            return *this;
+        }
+        
+        buffer& operator>>(std::uint64_t& value) {
+            value = consume<std::uint64_t, 8>();
+            return *this;
+        }
+        buffer& operator>>(std::int8_t& value) {
+            value = consume<std::int8_t, 1>();
+            return *this;
+        }
+
+        buffer& operator>>(std::int16_t& value) {
+            value = consume<std::int16_t, 2>();
+            return *this;
+        }
+
+        buffer& operator>>(std::int32_t& value) {
+            value = consume<std::int32_t, 4>();
+            return *this;
+        }
+
+        buffer& operator>>(std::int64_t& value) {
+            value = consume<std::int64_t, 8>();
+            return *this;
+        }
+
+        buffer& operator>>(std::string& value) {
+            return *this;
+        }
+
+        friend std::ostream& operator<<(std::ostream &o, const buffer &b) {
+            o << "buffer(payload={";
+            if (b.payload.size() > 0) {
+                for (auto &i : b.payload) {
+                    o << static_cast<std::uint32_t>(i) << ", ";
+                }
+                o << "\b\b";
+            }
+            o << "}, size=" << b.payload.size();
+            o << ", write_pos=" << b.write_pos;
+            o << ", read_pos=" << b.read_pos;
+            o << ", bit_pos=" << b.bit_pos << ")";
+            return o;
+        }
+
+        const std::vector<std::uint8_t>& data() { return payload; }
+   private:
        template <typename T, std::size_t S>
         void append(T value) {
             value = boost::endian::native_to_big(value);
@@ -159,26 +224,19 @@ namespace sysd {
             write_pos += count;
         }
 
-        friend std::ostream& operator<<(std::ostream &o, const buffer &b) {
-            o << "buffer(payload={";
-            if (b.payload.size() > 0) {
-                for (auto &i : b.payload) {
-                    o << static_cast<std::uint32_t>(i) << ", ";
-                }
-                o << "\b\b";
+        template <typename T, std::size_t S>
+        T consume() {
+            T value = 0;
+            for (std::size_t i = 0; i < S; ++i) {
+                value |= static_cast<T>(payload[read_pos++] << ((i * 4) << 1)); 
             }
-            o << "}, size=" << b.payload.size();
-            o << ", write_pos=" << b.write_pos;
-            o << ", bit_pos=" << b.bit_pos << ")";
-            return o;
+            return boost::endian::big_to_native(value);
         }
 
-        const std::vector<std::uint8_t>& data() { return payload; }
-    private:
-        std::size_t write_pos, bit_pos;
+        std::size_t write_pos, read_pos, bit_pos;
         std::vector<std::uint8_t> payload;
     };
 }
 
-#endif
+#endif // SYSD_BUFFER_HPP
 

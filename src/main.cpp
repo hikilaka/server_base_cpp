@@ -4,8 +4,15 @@
 
 int main() {
     sysd::buffer b;
+    b << std::uint64_t(5099901);
+
     std::cout << b << std::endl;
-    b << sysd::bits(2, 3) << sysd::bits(3, 4);
+    
+    std::uint64_t something;
+    b >> something;
+
+    std::cout << b.data()[0] << std::endl;
+    std::cout << "something=" << something << std::endl;
     std::cout << b << std::endl;
     return 0;
 }
