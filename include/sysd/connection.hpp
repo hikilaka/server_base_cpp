@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <array>
 #include <cstdint>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -29,8 +29,9 @@ namespace sysd {
 
         sysd::connection_handler &handler;
         boost::asio::ip::tcp::socket socket;
-        std::array<std::uint8_t, 512> read_buffer;
+        std::vector<std::uint8_t> read_buffer;
         std::vector<buffer> write_queue;
+        std::mutex read_mutex, write_mutex;
     };
 }
 

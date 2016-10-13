@@ -12,6 +12,7 @@ void sysd::connection_handler::on_disconnect(connection &conn) {
 
 void sysd::connection_handler::on_data(connection &conn, buffer buf) {
     std::cout << "on_data(" << buf << ")" << std::endl;
+    conn.write(buf); // echo serv~
 }
 
 void sysd::connection_handler::on_error(connection &conn,
