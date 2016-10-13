@@ -20,7 +20,7 @@ OFILES:=$(OBJFILES:%=obj/%.o)
 BINFILE=test
 
 COMMONFLAGS=-Wall -Wextra -pedantic
-LDFLAGS=-lboost_system
+LDFLAGS=-lboost_system -llua5.3
 
 ifdef DEBUG
         COMMONFLAGS := $(COMMONFLAGS) -g
