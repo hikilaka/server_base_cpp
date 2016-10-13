@@ -1,5 +1,7 @@
 #include "sysd/connection.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <utility>
 
 sysd::connection::connection(connection_handler &handler,
@@ -8,8 +10,13 @@ sysd::connection::connection(connection_handler &handler,
       read_buffer(), write_queue(), read_mutex(), write_mutex()
 {  }
 
-void sysd::connection::read() {
+void sysd::connection::start() {
     async_read();
+}
+
+void sysd::connection::stop() {
+    socket.cancel();
+    socket.close();
 }
 
 void sysd::connection::write(buffer buf) {
@@ -20,21 +27,26 @@ void sysd::connection::write(buffer buf) {
 }
 
 void sysd::connection::async_read() {
-    socket.async_read_some(boost::asio::buffer(read_buffer, 512), // TODO: get rid of magic number
+    socket.async_read_some(boost::asio::buffer(read_buffer),
                            [this](const boost::system::error_code &error,
                                   std::size_t bytes_transferred) {
         if (error) {
-            handler.on_error(*this, error);    
-        } else {
-            if (bytes_transferred == 0) {
+            if (boost::asio::error::eof == error ||
+                    boost::asio::error::connection_reset == error) {
                 handler.on_disconnect(*this);
             } else {
-                read_mutex.lock();
-                handler.on_data(*this, buffer(read_buffer.begin(),
-                                              read_buffer.end()));
-                read_buffer.clear();
-                read_mutex.unlock();
+                handler.on_error(*this, error);
             }
+        } else {
+            read_mutex.lock();
+            auto begin = std::begin(read_buffer);
+            auto end = std::begin(read_buffer);
+            std::advance(end, bytes_transferred);
+
+            handler.on_data(*this, buffer(begin, end));
+            read_mutex.unlock();
+            
+            async_read();
         }
     });
 }
@@ -58,9 +70,13 @@ void sysd::connection::async_write() {
                                     [[maybe_unused]]
                                     std::size_t bytes_transferred) {
         if (error) {
-            handler.on_error(*this, error);
+            if (boost::asio::error::eof == error ||
+                    boost::asio::error::connection_reset == error) {
+                handler.on_disconnect(*this);
+            } else {
+                handler.on_error(*this, error);
+            }
         } else {
-            // async_write until write_queue is clear
             async_write();
         }
     });

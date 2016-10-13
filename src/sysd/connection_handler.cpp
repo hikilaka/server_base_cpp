@@ -8,6 +8,8 @@ void sysd::connection_handler::on_connect(connection &conn) {
 
 void sysd::connection_handler::on_disconnect(connection &conn) {
     std::cout << "on_disconnect()" << std::endl;
+    conn.stop();
+    delete &conn;
 }
 
 void sysd::connection_handler::on_data(connection &conn, buffer buf) {
