@@ -184,6 +184,15 @@ namespace sysd {
         }
 
         buffer& operator>>(std::string& value) {
+            std::stringstream stream;
+            do {
+                if (std::uint8_t byte = consume<std::uint8_t, 1>(); byte != 0) {
+                    stream << byte;
+                } else {
+                    break;
+                }
+            } while (true);
+            value = stream.str();
             return *this;
         }
 
