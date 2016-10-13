@@ -226,10 +226,8 @@ namespace sysd {
 
         template <typename T, std::size_t S>
         T consume() {
-            T value = 0;
-            for (std::size_t i = 0; i < S; ++i) {
-                value |= static_cast<T>(payload[read_pos++] << ((i * 4) << 1)); 
-            }
+            T value = *((T*) &payload[read_pos]);
+            read_pos += S;
             return boost::endian::big_to_native(value);
         }
 

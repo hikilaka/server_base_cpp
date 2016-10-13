@@ -4,22 +4,22 @@
 #include "sysd/buffer.hpp"
 
 int main() {
-    /*sysd::buffer b;
-    b << std::uint64_t(5099901);
+    sysd::buffer b;
+    b << std::uint8_t(40) << std::uint8_t(99) << std::uint8_t(1);
+    b << std::uint64_t(90000001l);
 
-    std::cout << b << std::endl;
-    
-    std::uint64_t something;
-    b >> something;
+    std::uint8_t attack, strength, defence;
+    std::uint64_t username_hash;
 
-    std::cout << b.data()[0] << std::endl;
-    std::cout << "something=" << something << std::endl;
-    std::cout << b << std::endl;*/
+    b >> attack;
+    b >> strength;
+    b >> defence;
+    b >> username_hash;
 
-    LuaContext lua;
-    lua.writeVariable("x", 5);
-    lua.executeCode("x = x + 2");
-    std::cout << lua.readVariable<int>("x") << std::endl;
+    std::cout << "attack " << static_cast<int>(attack) << "/40" << std::endl;
+    std::cout << "strength " << static_cast<int>(strength) << "/99" << std::endl;
+    std::cout << "defence " << static_cast<int>(defence) << "/1" << std::endl;
+    std::cout << "username_hash " << username_hash << "/90000001" << std::endl;
     return 0;
 }
 
