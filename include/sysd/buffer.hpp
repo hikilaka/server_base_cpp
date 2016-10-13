@@ -25,10 +25,13 @@ namespace sysd {
         static const std::size_t DEFAULT_CAPACITY = 0x10;
 
         buffer(const std::size_t capacity = DEFAULT_CAPACITY)
-            : write_pos(0), read_pos(0), bit_pos(0)
-        {
-            payload.reserve(capacity);
-        }
+            : write_pos(0), read_pos(0), bit_pos(0), payload()
+        { payload.reserve(capacity); }
+
+        template<typename I>
+        buffer(I begin, I end)
+            : write_pos(0), read_pos(0), bit_pos(0), payload(begin, end)
+        {  }
 
         buffer& operator<<(bool value) {
             append<std::uint8_t, 1>(value ? 1 : 0);
