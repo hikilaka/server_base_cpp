@@ -16,17 +16,16 @@ namespace sysd {
     
     class connection {
     public:
-        connection(connection_handler &conn_handler,
+        connection(connection_handler &handler,
                    boost::asio::ip::tcp::socket socket);
 
         void read();
         void write(buffer buf);
-        connection_handler& handler() { return conn_handler; }
     private:
         void async_read();
         void async_write();
 
-        sysd::connection_handler &conn_handler;
+        sysd::connection_handler &handler;
         boost::asio::ip::tcp::socket socket;
         std::array<std::uint8_t, 512> read_buffer;
         std::vector<buffer> write_queue;
