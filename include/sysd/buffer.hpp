@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <boost/endian/conversion.hpp>
