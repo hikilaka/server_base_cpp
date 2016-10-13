@@ -9,12 +9,13 @@
 #include "sysd/connection.hpp"
 
 namespace sysd {
+    class connection;
     class connection_handler {
     public:
         void on_connect(connection &conn);
         void on_disconnect(connection &conn);
-        void on_data(connection &conn, buffer &buf);
-        void on_error(connection &conn, boost::system::error_code &error);
+        void on_data(connection &conn, buffer buf);
+        void on_error(connection &conn, boost::system::error_code error);
     };
 }
 

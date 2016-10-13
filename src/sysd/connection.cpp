@@ -2,8 +2,8 @@
 
 #include <utility>
 
-sysd::connection(connection_handler &handler,
-                 boost::asio::tcp::ip::socket socket)
+sysd::connection::connection(connection_handler &handler,
+                             boost::asio::ip::tcp::socket socket)
     : handler(handler), socket(std::move(socket)),
       read_buffer(), write_queue()
 {  }
@@ -14,14 +14,14 @@ void sysd::connection::read() {
 
 void sysd::connection::write(buffer buf) {
     // mutex.lock
-    // emplace_back(buf)
+    write_queue.emplace_back(buf);
     // mutex.unlock
     async_write();
 }
 
 void sysd::connection::async_read() {
     socket.async_read_some(boost::asio::buffer(read_buffer),
-                           [this](boost::system::error_code &error,
+                           [this](const boost::system::error_code &error,
                                   std::size_t bytes_transferred) {
         if (error) {
             handler.on_error(*this, error);    
@@ -50,7 +50,7 @@ void sysd::connection::async_write() {
 
     boost::asio::async_write(socket,
                              boost::asio::buffer(buf_copy.data()),
-                             [this](boost::system::error_code &error,
+                             [this](const boost::system::error_code &error,
                                     std::size_t bytes_transferred) {
         if (error) {
             handler.on_error(*this, error);

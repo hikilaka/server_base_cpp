@@ -10,8 +10,10 @@
 
 #include <boost/asio.hpp>
 
+#include "sysd/buffer.hpp"
+#include "sysd/connection_handler.hpp"
+
 namespace sysd {
-    class buffer;
     class connection_handler;
     
     class connection {

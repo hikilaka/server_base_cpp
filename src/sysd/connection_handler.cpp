@@ -10,12 +10,12 @@ void sysd::connection_handler::on_disconnect(connection &conn) {
     std::cout << "on_disconnect()" << std::endl;
 }
 
-void sysd::connection_handler::on_data(connection &conn, buffer &buf) {
+void sysd::connection_handler::on_data(connection &conn, buffer buf) {
     std::cout << "on_data(" << buf << ")" << std::endl;
 }
 
 void sysd::connection_handler::on_error(connection &conn,
-                                        boost::system::error_code &error) {
+                                        boost::system::error_code error) {
     std::cout << "on_error(" << error << ")" << std::endl;
 }
 
