@@ -20,7 +20,7 @@ void sysd::connection::write(buffer buf) {
 }
 
 void sysd::connection::async_read() {
-    socket.async_read_some(boost::asio::buffer(read_buffer),
+    socket.async_read_some(boost::asio::buffer(read_buffer, 512), // TODO: get rid of magic number
                            [this](const boost::system::error_code &error,
                                   std::size_t bytes_transferred) {
         if (error) {
