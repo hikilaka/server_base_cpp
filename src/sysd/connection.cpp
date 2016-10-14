@@ -27,6 +27,10 @@ void sysd::connection::write(buffer buf) {
     async_write();
 }
 
+boost::asio::ip::tcp::endpoint sysd::connection::endpoint() {
+    return socket.remote_endpoint();
+}
+
 bool sysd::connection::is_open() {
     return socket.is_open();
 }

@@ -16,7 +16,7 @@ sysd::server::server(boost::asio::io_service &service, std::uint16_t port)
 {  }
 
 void sysd::server::start() {
-    BOOST_LOG_TRIVIAL(info) << "starting accept at " << acceptor.local_endpoint();
+    BOOST_LOG_TRIVIAL(info) << "starting accept at " << acceptor.local_endpoint().port();
     
     async_timer();
     async_accept();

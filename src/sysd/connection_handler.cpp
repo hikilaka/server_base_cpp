@@ -10,7 +10,8 @@ sysd::connection_handler::connection_handler()
 
 void sysd::connection_handler::on_connect(connection *conn) {
     BOOST_LOG_TRIVIAL(info) << "on_connect(*conn)";
-    
+
+    BOOST_LOG_TRIVIAL(info) << "new connection from " << conn->endpoint();
     conn->update_activity();
 
     connections_mutex.lock();
@@ -49,8 +50,6 @@ void sysd::connection_handler::on_error(connection *conn,
 void sysd::connection_handler::check_timeouts() {
     using namespace std::chrono;
 
-    BOOST_LOG_TRIVIAL(info) << "checking timeouts";
-
     connections_mutex.lock();
 
     auto now = clock_type::now();
@@ -59,6 +58,11 @@ void sysd::connection_handler::check_timeouts() {
                                      connections.end(),
                                      [&now](connection *conn) {
         auto last_activity = duration_cast<minutes>(now - conn->last_active());
+        
+        if (!conn->is_open()) {
+            conn->close(); // clean up
+            return true;
+        }
 
         if (last_activity.count() >= 1) {
             sysd::buffer buf;

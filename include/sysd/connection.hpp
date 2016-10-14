@@ -30,6 +30,7 @@ namespace sysd {
         void run_async();
         void close();
         void write(buffer buf);
+        boost::asio::ip::tcp::endpoint endpoint();
         bool is_open();
         void update_activity();
         time_point_type last_active();
