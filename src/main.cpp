@@ -1,10 +1,13 @@
 #include <exception>
 #include <iostream>
 
+#include <typeinfo>
+
 #include <boost/program_options.hpp>
 
 #include "sysd/server.hpp"
 #include "sysd/connection_handler.hpp"
+#include "sysd/log.hpp"
 
 auto parse_arguments(int argc, char *argv[]) {
     namespace opts = boost::program_options;
@@ -23,7 +26,7 @@ auto parse_arguments(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     try {
-        std::uint16_t port = 34567;
+/*        std::uint16_t port = 34567;
 
         auto args = parse_arguments(argc, argv);
 
@@ -39,7 +42,10 @@ int main(int argc, char *argv[]) {
         sysd::server server(service, port);
     
         server.start();
-        service.run();
+        service.run();*/
+
+        SYSD_LOG(debug) warn_logger;
+        std::cout << typeid(warn_logger).name() << std::endl;
     } catch (std::exception &e) {
         std::cout << "exception: " << e.what() << std::endl;
     }
