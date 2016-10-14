@@ -8,7 +8,7 @@ sysd::connection::connection(connection_handler &handler,
                              boost::asio::ip::tcp::socket socket)
     : handler(handler), socket(std::move(socket)),
       read_buffer(), write_queue(), read_mutex(), write_mutex(),
-      last_activity(connection::clock_type::now())
+      last_activity()
 {  }
 
 void sysd::connection::run_async() {
@@ -31,6 +31,10 @@ bool sysd::connection::is_open() {
     return socket.is_open();
 }
 
+void sysd::connection::update_activity() {
+    last_activity = clock_type::now();
+}
+
 sysd::connection::time_point_type sysd::connection::last_active() {
     return last_activity;
 }
@@ -42,9 +46,9 @@ void sysd::connection::async_read() {
         if (error) {
             if (boost::asio::error::eof == error ||
                     boost::asio::error::connection_reset == error) {
-                handler.on_disconnect(*this);
+                handler.on_disconnect(this);
             } else {
-                handler.on_error(*this, error);
+                handler.on_error(this, error);
             }
         } else {
             read_mutex.lock();
@@ -52,7 +56,7 @@ void sysd::connection::async_read() {
             auto end = std::begin(read_buffer);
             std::advance(end, bytes_transferred);
 
-            handler.on_data(*this, buffer(begin, end));
+            handler.on_data(this, buffer(begin, end));
             read_mutex.unlock();
             
             async_read();
@@ -81,9 +85,9 @@ void sysd::connection::async_write() {
         if (error) {
             if (boost::asio::error::eof == error ||
                     boost::asio::error::connection_reset == error) {
-                handler.on_disconnect(*this);
+                handler.on_disconnect(this);
             } else {
-                handler.on_error(*this, error);
+                handler.on_error(this, error);
             }
         } else {
             async_write();

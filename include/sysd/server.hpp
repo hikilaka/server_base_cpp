@@ -18,9 +18,11 @@ namespace sysd {
         void stop();
     private:
         void async_accept();
+        void async_timer();
 
         boost::asio::ip::tcp::acceptor acceptor;
         boost::asio::ip::tcp::socket socket;
+        boost::asio::deadline_timer timeout_timer;
         connection_handler handler;
     };
 }

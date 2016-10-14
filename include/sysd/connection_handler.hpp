@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <tuple>
-#include <unordered_map>
+#include <mutex>
+#include <vector>
 
 #include <boost/system/error_code.hpp>
 
@@ -19,14 +19,17 @@ namespace sysd {
         using clock_type = std::chrono::steady_clock;
         using time_point_type = sysd::time_point<clock_type>;
 
-        void on_connect(connection &conn);
-        void on_disconnect(connection &conn);
-        void on_data(connection &conn, buffer buf);
-        void on_error(connection &conn, boost::system::error_code error);
+        connection_handler();
 
-        void check_connection_timeouts();
+        void on_connect(connection *conn);
+        void on_disconnect(connection *conn);
+        void on_data(connection *conn, buffer buf);
+        void on_error(connection *conn, boost::system::error_code error);
+
+        void check_timeouts();
     private:
-        std::vector<connection> connections;
+        std::vector<connection*> connections;
+        std::mutex connections_mutex;
     };
 }
 

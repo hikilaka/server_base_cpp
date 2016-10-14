@@ -31,6 +31,7 @@ namespace sysd {
         void close();
         void write(buffer buf);
         bool is_open();
+        void update_activity();
         time_point_type last_active();
     private:
         void async_read();
