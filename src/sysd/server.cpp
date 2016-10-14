@@ -29,7 +29,7 @@ void sysd::server::async_accept() {
         } else {
             connection *conn = new connection(handler, std::move(socket));
             handler.on_connect(*conn);
-            conn->start();
+            conn->run_async();
 
             async_accept();
         }

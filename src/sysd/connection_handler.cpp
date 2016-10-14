@@ -1,24 +1,33 @@
 #include "sysd/connection_handler.hpp"
 
-#include <iostream>
+#include <boost/log/trivial.hpp>
 
 void sysd::connection_handler::on_connect(connection &conn) {
-    std::cout << "on_connect()" << std::endl;
+    BOOST_LOG_TRIVIAL(info) << "on_connect(&conn)";
 }
 
 void sysd::connection_handler::on_disconnect(connection &conn) {
-    std::cout << "on_disconnect()" << std::endl;
-    conn.stop();
+    BOOST_LOG_TRIVIAL(info) << "on_disconnect(&conn)";
+    
+    if (conn.is_open()) {
+        conn.close();
+    }
+
     delete &conn;
 }
 
 void sysd::connection_handler::on_data(connection &conn, buffer buf) {
-    std::cout << "on_data(" << buf << ")" << std::endl;
+    BOOST_LOG_TRIVIAL(info) << "on_data(&conn, " << buf << ")";
+
     conn.write(buf); // echo serv~
 }
 
 void sysd::connection_handler::on_error(connection &conn,
                                         boost::system::error_code error) {
-    std::cout << "on_error(" << error << ")" << std::endl;
+    BOOST_LOG_TRIVIAL(info) << "on_error(&conn, " << error << ")";
+
+    if (conn.is_open()) {
+        conn.close();
+    }
 }
 

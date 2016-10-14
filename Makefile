@@ -20,14 +20,14 @@ OFILES:=$(OBJFILES:%=obj/%.o)
 BINFILE=test
 
 COMMONFLAGS=-Wall -Wextra -pedantic
-LDFLAGS=-lboost_system -llua5.3
+LDFLAGS=-lboost_system -lboost_log -llua5.3 -lpthread
 
 ifdef DEBUG
         COMMONFLAGS := $(COMMONFLAGS) -g
 endif
 
 CC=clang++
-CFLAGS=$(COMMONFLAGS) --std=c++1z -I ./include/ -I /usr/local/include/boost/ 
+CFLAGS=$(COMMONFLAGS) --std=c++1z -I ./include/ -I /usr/local/include/boost/ -DBOOST_LOG_DYN_LINK
 
 CFILES:=$(shell find src -mindepth 1 -maxdepth 5 -name "*.cpp")
 

@@ -7,14 +7,15 @@
 sysd::connection::connection(connection_handler &handler,
                              boost::asio::ip::tcp::socket socket)
     : handler(handler), socket(std::move(socket)),
-      read_buffer(), write_queue(), read_mutex(), write_mutex()
+      read_buffer(), write_queue(), read_mutex(), write_mutex(),
+      last_activity(connection::clock_type::now())
 {  }
 
-void sysd::connection::start() {
+void sysd::connection::run_async() {
     async_read();
 }
 
-void sysd::connection::stop() {
+void sysd::connection::close() {
     socket.cancel();
     socket.close();
 }
@@ -24,6 +25,14 @@ void sysd::connection::write(buffer buf) {
     write_queue.emplace_back(buf);
     write_mutex.unlock();
     async_write();
+}
+
+bool sysd::connection::is_open() {
+    return socket.is_open();
+}
+
+sysd::connection::time_point_type sysd::connection::last_active() {
+    return last_activity;
 }
 
 void sysd::connection::async_read() {
