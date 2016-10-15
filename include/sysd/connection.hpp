@@ -14,7 +14,6 @@
 
 #include "sysd/buffer.hpp"
 #include "sysd/connection_handler.hpp"
-#include "sysd/util.hpp"
 
 namespace sysd {
     class connection_handler;
@@ -22,7 +21,7 @@ namespace sysd {
     class connection {
     public:
         using clock_type = std::chrono::steady_clock;
-        using time_point_type = sysd::time_point<clock_type>;
+        using time_point_type = std::chrono::time_point<clock_type>;
 
         connection(connection_handler &handler,
                    boost::asio::ip::tcp::socket socket);

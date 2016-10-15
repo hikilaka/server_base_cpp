@@ -91,7 +91,7 @@ namespace sysd {
                 append(reinterpret_cast<const std::uint8_t *>(str.c_str()),
                        str.length());
             }
-            append<std::uint8_t, 1>(0);
+            append<std::uint8_t, 1>(10);
             return *this;
         }
 

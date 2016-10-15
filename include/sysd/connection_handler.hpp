@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <mutex>
 #include <vector>
 
@@ -10,14 +11,13 @@
 
 #include "sysd/buffer.hpp"
 #include "sysd/connection.hpp"
-#include "sysd/util.hpp"
 
 namespace sysd {
     class connection;
     class connection_handler {
     public:
         using clock_type = std::chrono::steady_clock;
-        using time_point_type = sysd::time_point<clock_type>;
+        using time_point_type = std::chrono::time_point<clock_type>;
 
         connection_handler();
 

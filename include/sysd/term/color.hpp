@@ -29,6 +29,9 @@ namespace sysd::term::color {
 
     template <typename T = std::string>
     const T white = T("\033[1;37m");
+
+    template <typename T = std::string>
+    const T gray = T("\033[0;37m");
 }
 
 #endif // SYSD_TERM_COLOR_HPP

@@ -9,9 +9,7 @@ sysd::connection_handler::connection_handler()
 {  }
 
 void sysd::connection_handler::on_connect(connection *conn) {
-    BOOST_LOG_TRIVIAL(info) << "on_connect(*conn)";
-
-    BOOST_LOG_TRIVIAL(info) << "new connection from " << conn->endpoint();
+    BOOST_LOG_TRIVIAL(info) << "new connection from " << conn->endpoint().port();
     conn->update_activity();
 
     connections_mutex.lock();
@@ -20,7 +18,7 @@ void sysd::connection_handler::on_connect(connection *conn) {
 }
 
 void sysd::connection_handler::on_disconnect(connection *conn) {
-    BOOST_LOG_TRIVIAL(info) << "on_disconnect(*conn)";
+    BOOST_LOG_TRIVIAL(info) << "session disconnected";
     
     if (conn->is_open()) {
         // is this necessary??
@@ -58,9 +56,9 @@ void sysd::connection_handler::check_timeouts() {
                                      connections.end(),
                                      [&now](connection *conn) {
         auto last_activity = duration_cast<minutes>(now - conn->last_active());
-        
+
         if (!conn->is_open()) {
-            conn->close(); // clean up
+            conn->close();
             return true;
         }
 
