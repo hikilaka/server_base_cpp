@@ -42,27 +42,22 @@ void sysd::connection_handler::on_error(connection *conn,
 }
 
 void sysd::connection_handler::check_timeouts() {
-    BOOST_LOG_TRIVIAL(info) << "running timeout check on " << connections.size() << " connection(s) ";
     using namespace std::chrono;
 
     connections_mutex.lock();
 
     auto now = clock_type::now();
-
     connections.erase(std::remove_if(connections.begin(),
                                      connections.end(),
                                      [&now](connection *conn) {
         auto last_activity = duration_cast<minutes>(now - conn->last_active());
-        BOOST_LOG_TRIVIAL(debug) << "check connection @ 0x" << conn;
+
         if (!conn->is_open()) {
-            BOOST_LOG_TRIVIAL(debug) << "\tfound inactive connection...";
             delete conn;
             return true;
         }
 
-        if (last_activity.count() >= 1) {
-            BOOST_LOG_TRIVIAL(debug) << "\tfound lingering connection...";
-            
+        if (last_activity.count() >= 1) {        
             sysd::buffer buf;
             buf << std::string("disconnecting due to inactivity\n");
             conn->write(buf);
@@ -75,6 +70,5 @@ void sysd::connection_handler::check_timeouts() {
     }), connections.end());
 
     connections_mutex.unlock();
-    BOOST_LOG_TRIVIAL(info) << "... complete!";
 }
 
