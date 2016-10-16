@@ -1,25 +1,26 @@
 #include "sysd/log/extension.hpp"
 
+#include <chrono>
+#include <iomanip>
+
 #include <boost/core/null_deleter.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/smart_ptr/make_shared_object.hpp>
-#include <boost/log/core.hpp>
+#include <boost/smart_ptr.hpp>
+#include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/support/date_time.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
 
 #include "sysd/term/color.hpp"
 
 void color_formatter(const boost::log::record_view &record,
                      boost::log::formatting_ostream &stream) {
+    auto now = std::chrono::system_clock::now();
+    auto timepoint = std::chrono::system_clock::to_time_t(now);
+
     stream << sysd::term::color::gray<> << "[";
-    stream << boost::log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp",
-                                                                                  "%m:%d:%Y - %H:%M:%S");
+    stream << std::put_time(std::localtime(&timepoint), "%m/%e/%Y - %H:%M:%S");
     stream << "] " << sysd::term::color::clear<>;
 
     auto severity = record[boost::log::trivial::severity];
