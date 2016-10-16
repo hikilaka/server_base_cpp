@@ -16,7 +16,7 @@ sysd::server::server(boost::asio::io_service &service, std::uint16_t port)
 {  }
 
 void sysd::server::start() {
-    BOOST_LOG_TRIVIAL(info) << "starting accept at " << acceptor.local_endpoint().port();
+    BOOST_LOG_TRIVIAL(info) << "accepting connections on port " << acceptor.local_endpoint().port();
     
     async_timer();
     async_accept();
@@ -24,7 +24,7 @@ void sysd::server::start() {
 
 void sysd::server::stop() {
     timeout_timer.cancel();
-    // close all connections first?
+    // TODO: close connections
     acceptor.cancel();
     acceptor.close();
 }
@@ -32,7 +32,8 @@ void sysd::server::stop() {
 void sysd::server::async_accept() {
     acceptor.async_accept(socket, [this](const boost::system::error_code &error) {
         if (error) {
-            std::cout << "accept error: " << error << std::endl;        
+            BOOST_LOG_TRIVIAL(error) << "error accepting connections: " << error;
+            BOOST_LOG_TRIVIAL(error) << "\t" << error.message();
         } else {
             connection *conn = new connection(handler, std::move(socket));
             handler.on_connect(conn);

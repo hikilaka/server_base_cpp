@@ -28,15 +28,8 @@ auto parse_arguments(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
     try {
         sysd::log::add_extensions();
-
-        BOOST_LOG_TRIVIAL(debug) << "test";
-        BOOST_LOG_TRIVIAL(info) << "test";
-        BOOST_LOG_TRIVIAL(warning) << "test";
-        BOOST_LOG_TRIVIAL(trace) << "test";
-        BOOST_LOG_TRIVIAL(error) << "test";
-        BOOST_LOG_TRIVIAL(fatal) << "test"; 
-
-        /*std::uint16_t port = 34567;
+        
+        std::uint16_t port = 34567;
 
         auto args = parse_arguments(argc, argv);
 
@@ -52,7 +45,7 @@ int main(int argc, char *argv[]) {
         sysd::server server(service, port);
     
         server.start();
-        service.run();*/
+        service.run();
     } catch (std::exception &e) {
         std::cout << "exception: " << e.what() << std::endl;
     }
