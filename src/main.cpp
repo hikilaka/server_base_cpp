@@ -4,9 +4,11 @@
 #include <typeinfo>
 
 #include <boost/program_options.hpp>
+#include <boost/log/trivial.hpp>
 
-#include "sysd/server.hpp"
 #include "sysd/connection_handler.hpp"
+#include "sysd/server.hpp"
+#include "sysd/log/extension.hpp"
 
 auto parse_arguments(int argc, char *argv[]) {
     namespace opts = boost::program_options;
@@ -25,7 +27,11 @@ auto parse_arguments(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     try {
-        std::uint16_t port = 34567;
+        sysd::log::add_extensions();
+
+        BOOST_LOG_TRIVIAL(info) << "test";
+
+        /*std::uint16_t port = 34567;
 
         auto args = parse_arguments(argc, argv);
 
@@ -41,7 +47,7 @@ int main(int argc, char *argv[]) {
         sysd::server server(service, port);
     
         server.start();
-        service.run();
+        service.run();*/
     } catch (std::exception &e) {
         std::cout << "exception: " << e.what() << std::endl;
     }
