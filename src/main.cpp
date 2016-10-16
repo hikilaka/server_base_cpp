@@ -1,13 +1,10 @@
 #include <exception>
 #include <iostream>
 
-#include <typeinfo>
-
 #include <boost/program_options.hpp>
 #include <boost/log/trivial.hpp>
 
-#include "sysd/connection_handler.hpp"
-#include "sysd/server.hpp"
+#include "sysd/net/server.hpp"
 #include "sysd/log/extension.hpp"
 
 auto parse_arguments(int argc, char *argv[]) {
@@ -42,7 +39,7 @@ int main(int argc, char *argv[]) {
         }
 
         boost::asio::io_service service;
-        sysd::server server(service, port);
+        sysd::net::server server(service, port);
     
         server.start();
         service.run();
